@@ -1,0 +1,41 @@
+basePath: /api
+definitions:
+  responses.UserResponse:
+    properties:
+      user:
+        properties:
+          id:
+            type: integer
+          name:
+            type: string
+        type: object
+    type: object
+host: localhost:8000
+info:
+  contact: {}
+  description: Conduit API
+  title: Conduit API
+  version: "1.0"
+paths:
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: Gets the currently logged-in user
+      operationId: current-user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.UserResponse'
+      summary: Get the current user
+      tags:
+      - user
+produces:
+- application/json
+schemes:
+- http
+- https
+swagger: "2.0"
