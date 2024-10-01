@@ -13,10 +13,45 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "localhost:8000",
+    "host": "eyeh:8080",
     "basePath": "/api",
     "paths": {
-        "/users": {
+        "/auth/register": {
+            "post": {
+                "description": "Register a new user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Register a new user",
+                "operationId": "register",
+                "parameters": [
+                    {
+                        "description": "User info for registration",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requests.UserRegisterRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/responses.UserRegisterResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user": {
             "get": {
                 "description": "Gets the currently logged-in user",
                 "consumes": [
@@ -42,6 +77,33 @@
         }
     },
     "definitions": {
+        "requests.UserRegisterRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "password",
+                "username"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "responses.UserRegisterResponse": {
+            "type": "object",
+            "properties": {
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "responses.UserResponse": {
             "type": "object",
             "properties": {
@@ -51,7 +113,7 @@
                         "id": {
                             "type": "integer"
                         },
-                        "name": {
+                        "username": {
                             "type": "string"
                         }
                     }
