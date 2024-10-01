@@ -7,7 +7,7 @@ export LDFLAGS="-w -s"
 all: build test
 
 build:
-	go build -race  .
+	go build -race -v -o dist/scimta-be -ldflags $(LDFLAGS) .
 
 build-static:
 	CGO_ENABLED=0 go build -race -v -o $(APP) -a -installsuffix cgo -ldflags $(LDFLAGS) .
