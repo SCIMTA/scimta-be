@@ -60,6 +60,7 @@ func main() {
 	// Init Echo
 	e := echo.New()
 	e.Validator = &Validator{validator: validator.New()}
+
 	// e.Logger.SetLevel(zerolog.DebugLevel)
 
 	// Middleware
@@ -86,6 +87,7 @@ func main() {
 			return strings.Contains(c.Request().URL.Path, "docs")
 		},
 	}))
+	e.Use(middleware.Recover())
 
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")

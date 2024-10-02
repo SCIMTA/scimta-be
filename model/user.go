@@ -3,6 +3,7 @@ package model
 import (
 	"errors"
 
+	"github.com/rs/zerolog/log"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -24,5 +25,9 @@ func (u *User) HashPassword(p string) (string, error) {
 
 func (u *User) CheckPassword(p string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(p))
+	if err != nil {
+		log.Info().Msg("password is" + u.Password + " and input is " + u.Username)
+		log.Error().Err(err).Msg("password does not match")
+	}
 	return err == nil
 }
