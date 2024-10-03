@@ -36,13 +36,14 @@ func (v *Validator) Validate(i interface{}) error {
 // @description Conduit API
 // @title Conduit API
 
-// @host eyeh:8080
+// @host localhost:8080
 // @BasePath /api
 
 // @schemes http https
 // @produce	application/json
 // @consumes application/json
 
+// @securityDefinitions.apikey ApiKeyAuth
 // @in header
 // @name Authorization
 

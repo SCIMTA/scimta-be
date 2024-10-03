@@ -6,12 +6,30 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 )
 
 type jwtClaims struct {
 	Username string `json:"username"`
 	jwt.RegisteredClaims
+}
+
+type jwtExtractor func(echo.Context) (string, error)
+
+var (
+	ErrJWTMissing = echo.NewHTTPError(http.StatusUnauthorized, "missing or malformed jwt")
+	ErrJWTInvalid = echo.NewHTTPError(http.StatusForbidden, "invalid or expired jwt")
+	JWTInstance   echo.MiddlewareFunc
+)
+
+func JWTWithConfig() echo.MiddlewareFunc {
+	// extractor := jwtFromHeader("Authorization", "Bearer")
+	config := echojwt.Config{
+		TokenLookup: "header:Authorization:Bearer",
+		SigningKey:  []byte("secret"),
+	}
+	return echojwt.WithConfig(config)
 }
 
 func NewJWTClaims(user *model.User) *jwtClaims {
@@ -33,13 +51,27 @@ func NewTokenWithClaims(claims jwt.Claims) (string, error) {
 	return t, nil
 }
 
-func accessible(c echo.Context) error {
+func Accessible(c echo.Context) error {
 	return c.String(http.StatusOK, "Accessible")
 }
 
-func restricted(c echo.Context) error {
-	user := c.Get("user").(*jwt.Token)
+func Restricted(c echo.Context) error {
+	user := c.Get("username").(*jwt.Token)
 	claims := user.Claims.(*jwtClaims)
 	name := claims.Username
 	return c.String(http.StatusOK, "Welcome "+name+"!")
+}
+
+// tokenParser returns a `jwtExtractor` that extracts token from the request header.
+
+// jwtFromHeader returns a `jwtExtractor` that extracts token from the request header.
+func jwtFromHeader(header string, authScheme string) jwtExtractor {
+	return func(c echo.Context) (string, error) {
+		auth := c.Request().Header.Get(header)
+		l := len(authScheme)
+		if len(auth) > l+1 && auth[:l] == authScheme {
+			return auth[l+1:], nil
+		}
+		return "", ErrJWTMissing
+	}
 }

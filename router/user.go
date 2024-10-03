@@ -5,6 +5,7 @@ import (
 	"scimta-be/model"
 	"scimta-be/requests"
 	"scimta-be/responses"
+	"scimta-be/router/middleware"
 	"scimta-be/services"
 	"scimta-be/utils"
 
@@ -24,6 +25,7 @@ func NewUserRouter(sg *echo.Group, us *services.UserServices) *UserRouter {
 	guest.POST("/login", ur.Login)
 
 	user := sg.Group("/user")
+	user.Use(middleware.JWTWithConfig())
 	user.GET("", ur.GetUsers)
 
 	return ur
@@ -88,8 +90,15 @@ func (ur *UserRouter) Login(c echo.Context) error {
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} responses.UserResponse
+// @Security ApiKeyAuth
 // @Router /user [get]
 func (ur *UserRouter) GetUsers(c echo.Context) error {
+	for key, values := range c.Request().Header {
+		log.Info().Msg(key)
+		for _, value := range values {
+			log.Info().Msg(value)
+		}
+	}
 	user := ur.userService.GetUsers(c)
 	return user
 }
