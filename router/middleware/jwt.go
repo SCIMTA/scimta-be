@@ -1,11 +1,14 @@
 package middleware
 
 import (
+	"log"
 	"net/http"
+	"os"
 	"scimta-be/model"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/joho/godotenv"
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 )
@@ -23,11 +26,21 @@ var (
 	JWTInstance   echo.MiddlewareFunc
 )
 
+func loadSecret() []byte {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	secret := os.Getenv("JWT_SECRET")
+	return []byte(secret)
+}
+
 func JWTWithConfig() echo.MiddlewareFunc {
 	// extractor := jwtFromHeader("Authorization", "Bearer")
 	config := echojwt.Config{
-		TokenLookup: "header:Authorization:Bearer",
-		SigningKey:  []byte("secret"),
+		TokenLookup: "header:Authorization:Bearer ",
+		SigningKey:  loadSecret(),
+		ContextKey:  "username",
 	}
 	return echojwt.WithConfig(config)
 }
@@ -43,26 +56,12 @@ func NewJWTClaims(user *model.User) *jwtClaims {
 
 func NewTokenWithClaims(claims jwt.Claims) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	// TODO: Implement other secret key management
-	t, err := token.SignedString([]byte("secret"))
+	t, err := token.SignedString(loadSecret())
 	if err != nil {
 		return "", err
 	}
 	return t, nil
 }
-
-func Accessible(c echo.Context) error {
-	return c.String(http.StatusOK, "Accessible")
-}
-
-func Restricted(c echo.Context) error {
-	user := c.Get("username").(*jwt.Token)
-	claims := user.Claims.(*jwtClaims)
-	name := claims.Username
-	return c.String(http.StatusOK, "Welcome "+name+"!")
-}
-
-// tokenParser returns a `jwtExtractor` that extracts token from the request header.
 
 // jwtFromHeader returns a `jwtExtractor` that extracts token from the request header.
 func jwtFromHeader(header string, authScheme string) jwtExtractor {
