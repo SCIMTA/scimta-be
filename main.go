@@ -36,13 +36,14 @@ func (v *Validator) Validate(i interface{}) error {
 // @description Conduit API
 // @title Conduit API
 
-// @host eyeh:8080
+// @host localhost:8080
 // @BasePath /api
 
 // @schemes http https
 // @produce	application/json
 // @consumes application/json
 
+// @securityDefinitions.apikey ApiKeyAuth
 // @in header
 // @name Authorization
 
@@ -60,6 +61,7 @@ func main() {
 	// Init Echo
 	e := echo.New()
 	e.Validator = &Validator{validator: validator.New()}
+
 	// e.Logger.SetLevel(zerolog.DebugLevel)
 
 	// Middleware
@@ -86,6 +88,7 @@ func main() {
 			return strings.Contains(c.Request().URL.Path, "docs")
 		},
 	}))
+	e.Use(middleware.Recover())
 
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")

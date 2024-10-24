@@ -25,3 +25,9 @@ go.work.sum
 .env
 tmp/
 dist/
+
+# docs auto generate by swag
+docs/*.html
+docs/*.yaml
+docs/*.json
+docs/*.go
