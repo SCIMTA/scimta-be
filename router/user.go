@@ -26,7 +26,7 @@ func NewUserRouter(sg *echo.Group, us *services.UserServices) *UserRouter {
 
 	user := sg.Group("/user")
 	user.Use(middleware.JWTWithConfig())
-	user.GET("", ur.GetUsers)
+	user.GET("", ur.GetUser)
 
 	return ur
 }
@@ -92,13 +92,13 @@ func (ur *UserRouter) Login(c echo.Context) error {
 // @Success 200 {object} responses.UserResponse
 // @Security ApiKeyAuth
 // @Router /user [get]
-func (ur *UserRouter) GetUsers(c echo.Context) error {
-	for key, values := range c.Request().Header {
-		log.Info().Msg(key)
-		for _, value := range values {
-			log.Info().Msg(value)
-		}
+func (ur *UserRouter) GetUser(c echo.Context) error {
+	user, err := ur.userService.GetUser(c)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err)
 	}
-	user := ur.userService.GetUsers(c)
-	return user
+	if user == nil {
+		return c.JSON(http.StatusBadRequest, "User not found")
+	}
+	return c.JSON(http.StatusOK, responses.GetUserResponse(user))
 }

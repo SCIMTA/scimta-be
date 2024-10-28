@@ -15,3 +15,11 @@ func GenerateJWT(u *model.User) (string, error) {
 	}
 	return t, nil
 }
+
+func VerifyJWT(tokenStr string) (string, error) {
+	claims, err := middleware.VerifyToken(tokenStr[7:])
+	if err != nil {
+		return "", err
+	}
+	return claims.Username, nil
+}

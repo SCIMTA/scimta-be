@@ -37,3 +37,10 @@ func NewUserRegisterResponse(u *model.User) *UserRegisterResponse {
 	r.Username = u.Username
 	return r
 }
+
+func GetUserResponse(u *model.User) *UserResponse {
+	r := new(UserResponse)
+	r.User.ID = u.Id
+	r.User.Username = u.Username
+	return r
+}
