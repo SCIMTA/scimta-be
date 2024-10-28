@@ -2,8 +2,11 @@ package responses
 
 import (
 	"scimta-be/model"
-	"scimta-be/utils"
 )
+
+type BaseResponse struct {
+	Message string `json:"message"`
+}
 
 type UserResponse struct {
 	User struct {
@@ -16,15 +19,14 @@ type UserLoginResponse struct {
 	Username string `json:"username"`
 	Token    string `json:"token"`
 }
+func NewBaseResponse(message string) *BaseResponse {
+	return &BaseResponse{Message: message}
+}
 
-func NewUserLoginResponse(u *model.User) *UserLoginResponse {
+func NewUserLoginResponse(username string, tokenStr string) *UserLoginResponse {
 	r := new(UserLoginResponse)
-	r.Username = u.Username
-	t, err := utils.GenerateJWT(u)
-	if err != nil {
-		return nil
-	}
-	r.Token = t
+	r.Username = username
+	r.Token = tokenStr
 	return r
 }
 
@@ -32,9 +34,9 @@ type UserRegisterResponse struct {
 	Username string `json:"username"`
 }
 
-func NewUserRegisterResponse(u *model.User) *UserRegisterResponse {
+func NewUserRegisterResponse(username string) *UserRegisterResponse {
 	r := new(UserRegisterResponse)
-	r.Username = u.Username
+	r.Username = username
 	return r
 }
 
