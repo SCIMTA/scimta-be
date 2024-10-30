@@ -106,8 +106,10 @@ func main() {
 
 	// Services
 	userServices := services.NewUserServices(d)
+	authServices := services.NewAuthServices(userServices)
 
 	// Routers
+	router.NewAuthRouter(v1, authServices)
 	router.NewUserRouter(v1, userServices)
 
 	// Start server

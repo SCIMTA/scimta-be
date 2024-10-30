@@ -74,3 +74,16 @@ func jwtFromHeader(header string, authScheme string) jwtExtractor {
 		return "", ErrJWTMissing
 	}
 }
+
+func VerifyToken(tokenStr string) (*jwtClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenStr, &jwtClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return loadSecret(), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	if claims, ok := token.Claims.(*jwtClaims); ok && token.Valid {
+		return claims, nil
+	}
+	return nil, ErrJWTInvalid
+}

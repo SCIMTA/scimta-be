@@ -4,10 +4,19 @@ export DEBUG=true
 export APP=scimta-be
 export LDFLAGS="-w -s"
 
-all: build test
+all: init
+
+init:
+	go install github.com/swaggo/swag/cmd/swag@latest
+	go install github.com/air-verse/air@latest
+	swag i
+	go install
 
 build:
 	go build -race -v -o dist/scimta-be -ldflags $(LDFLAGS) .
+
+build-win:
+	go build -v -o dist/scimta-be -ldflags $(LDFLAGS) .
 
 build-static:
 	CGO_ENABLED=0 go build -race -v -o $(APP) -a -installsuffix cgo -ldflags $(LDFLAGS) .
@@ -17,6 +26,10 @@ run:
 
 air:
 	air
+
+air-win:
+	air -build.cmd "go build -o .\tmp\main.exe ." -build.bin ".\tmp\main.exe" 
+	
 # dev:
 # 	bash -c "trap 'docker-compose down' EXIT; docker-compose -f ./docker-compose.dev.yml up -d --build && air"
 

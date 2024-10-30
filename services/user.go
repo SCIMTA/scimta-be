@@ -2,14 +2,13 @@ package services
 
 import (
 	"errors"
-	"net/http"
 
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
 	"gorm.io/gorm"
 
 	"scimta-be/model"
-	"scimta-be/responses"
+	"scimta-be/utils"
 )
 
 type UserServices struct {
@@ -36,10 +35,15 @@ func (us *UserServices) Create(u *model.User) error {
 	return us.db.Create(u).Error
 }
 
-// TODO: Implement this please
-func (us *UserServices) GetUsers(c echo.Context) error {
-	tempUser := new(responses.UserResponse)
-	tempUser.User.ID = 1
-	tempUser.User.Username = "john_doe"
-	return c.JSON(http.StatusOK, tempUser)
+func (us *UserServices) GetUser(c echo.Context) (*model.User, error) {
+	tokenStr := c.Request().Header.Get("Authorization")
+	username, err := utils.VerifyJWT(tokenStr)
+	if err != nil {
+		return nil, err
+	}
+	var user = model.User{Username: username}
+	if err := us.db.First(&user).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
 }

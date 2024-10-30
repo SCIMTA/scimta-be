@@ -1,8 +1,6 @@
 package requests
 
 import (
-	"scimta-be/model"
-
 	"github.com/labstack/echo/v4"
 )
 
@@ -11,7 +9,7 @@ type UserRegisterRequest struct {
 	Password string `json:"password" validate:"required"`
 }
 
-func (r *UserRegisterRequest) Bind(c echo.Context, u *model.User) error {
+func (r *UserRegisterRequest) Bind(c echo.Context) error {
 	if err := c.Bind(r); err != nil {
 		return err
 	}
@@ -20,12 +18,6 @@ func (r *UserRegisterRequest) Bind(c echo.Context, u *model.User) error {
 		return err
 	}
 
-	u.Username = r.Username
-	h, err := u.HashPassword(r.Password)
-	if err != nil {
-		return err
-	}
-	u.Password = h
 	return nil
 }
 
@@ -35,6 +27,23 @@ type UserLoginRequest struct {
 }
 
 func (r *UserLoginRequest) Bind(c echo.Context) error {
+	if err := c.Bind(r); err != nil {
+		return err
+	}
+
+	if err := c.Validate(r); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+type UserChangePasswordRequest struct {
+	OldPassword string `json:"oldPassword" validate:"required"`
+	NewPassword string `json:"newPassword" validate:"required"`
+}
+
+func (r *UserChangePasswordRequest) Bind(c echo.Context) error {
 	if err := c.Bind(r); err != nil {
 		return err
 	}
